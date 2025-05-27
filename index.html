@@ -1,0 +1,29 @@
+<!DOCTYPE html><html><body>
+<h3>🎧 連線後會即時播放麥克風</h3>
+<script>
+const SAMPLE_RATE = 16000;
+const ctx  = new (window.AudioContext||window.webkitAudioContext)({sampleRate: SAMPLE_RATE});
+const ws   = new WebSocket("ws://localhost:5678");
+ws.binaryType = "arraybuffer";
+
+let queue = [];
+function feed() {
+  if (queue.length) {
+    const int16 = queue.shift();
+    const float32 = new Float32Array(int16.length);
+    for (let i = 0; i < int16.length; i++) float32[i] = int16[i] / 32768;
+    const buf = ctx.createBuffer(1, float32.length, SAMPLE_RATE);
+    buf.copyToChannel(float32, 0);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    src.start();
+  }
+  // 這裡用 setTimeout(0) 比 requestAnimationFrame 穩定（60fps < 16k/1024≈15fps）
+  setTimeout(feed, 0);
+}
+
+ws.onopen = () => { console.log("已連線"); feed(); };
+ws.onmessage = ev => queue.push(new Int16Array(ev.data));
+</script>
+</body></html>
