@@ -1,70 +1,110 @@
-# 🎙️ Realtime Mic-to-Browser Audio Streaming (即時音訊串流系統)
+# 🎙️ 即時音訊串流系統（Mic-to-Browser Realtime Audio Streaming）
 
-這是一個從零開始打造的【即時聲音串流實驗專案】，  
-可以讓你使用 Python 擷取麥克風的即時聲音，並透過 WebSocket 傳送到瀏覽器即時播放！
+這是一個使用 Python 和 HTML 製作的「即時聲音監聽系統」。
 
-> ✅ 沒有用到第三方語音 SDK  
-> ✅ 沒有用到 WebRTC  
-> ✅ 100% 自己寫出來的程式碼
+你可以：
 
----
+* 使用筆電或桌機的麥克風錄音
+* 透過 WebSocket 即時傳送聲音到網頁
+* 在瀏覽器中 **立即聽見自己麥克風的聲音**
 
-## 🔥 功能特色
+這個專案對我來說非常特別，它讓我真正感受到：
 
-- 🎧 即時播放：從電腦麥克風擷取聲音，直接播放到瀏覽器。
-- 🔗 WebSocket 串流：利用 WebSocket 傳輸聲音資料，實現近乎即時的傳輸。
-- 🔊 無雜音版本：固定取樣率、封包大小與格式，確保播放乾淨穩定。
-- 🧪 可擴充：未來可整合語音辨識、遠端監聽、雙向語音等功能。
+> 「我不是只會寫程式，我能讓聲音穿越網路、被程式捕捉、被還原，並回到我耳中。」
 
 ---
 
-## 🚀 使用說明
+## ✨ 功能特色
 
-### 1. 安裝 Python 套件
+* 📡 即時錄音 → 傳輸 → 播放
+* 🧠 全部自行寫成，不依賴語音 SDK
+* 📦 使用標準 Python 函式庫 + HTML 原生 API
+* 🔁 連接順暢無雜音（使用固定取樣率與封包大小）
+* 🔧 可成為遠端語音監聽、智慧聲音觸發系統的雛形
 
+---
 
-- pip install websockets sounddevice numpy
+## 🔧 執行方式（本地使用）
 
+### ✅ 第一步：安裝套件
 
-### 2. 啟動伺服器
-- python server.py
-伺服器啟動後會顯示：
+使用 pip 安裝所需套件（一次安裝即可）：
 
-- WebSocket server listening on ws://localhost:5678
+```bash
+pip install websockets sounddevice numpy
+```
 
+### ✅ 第二步：啟動 Python 錄音伺服器
 
-### 3. 打開 index.html
-使用 Chrome 或 Firefox 開啟 index.html，允許 Audio 播放權限後，你就會聽到自己麥克風即時發出的聲音！
+```bash
+python server.py
+```
 
-## 📦 檔案結構
+若一切順利，會看到以下訊息：
 
-📁 your-project-folder
-├── server.py         ← Python WebSocket 錄音伺服器
-└── index.html        ← 前端頁面，接收並播放音訊
+```
+WebSocket server listening on ws://localhost:5678
+```
 
-## 🛠️ 技術重點
-Python + sounddevice: 擷取即時聲音（int16, 16kHz）
+### ✅ 第三步：開啟瀏覽器播放頁面
 
-WebSockets：雙向即時資料傳輸
+* 使用瀏覽器開啟 `index.html`
 
-HTML + JavaScript：AudioContext 實現聲音播放
+  * ✅ 建議使用 Chrome 或 Firefox
+  * ✅ 若遇無法播放，可點擊頁面以啟用 AudioContext
+* 畫面上會顯示「已連線」，你就會開始聽到自己說話的聲音！
 
-音訊封包格式對齊：int16 → float32 → 播放，避免雜音/失真
+---
 
-## 🧭 延伸發展（TODO Ideas）
-## 📡 支援遠端多裝置連線（非 localhost）
+## 📁 專案結構
 
-## 🧠 結合 Speech-to-Text 實現語音轉文字
+```
+your-folder/
+├── server.py       ← Python 音訊伺服器（錄音 + 傳送）
+└── index.html      ← 瀏覽器前端介面（接收 + 播放）
+```
 
-## 🔐 加入傳輸加密與驗證（例如 TLS）
+---
 
-## 🖥️ 建立管理介面 / 音訊視覺化圖表
+## 🔬 技術重點整理（學習筆記）
 
-## 📱 將 Python server 搬進手機裝置（Kivy / 原生）
+| 部分    | 技術與重點                                      |
+| ----- | ------------------------------------------ |
+| 麥克風錄音 | 使用 `sounddevice.InputStream` 錄音，16-bit PCM |
+| 音訊格式  | 固定 16000 Hz 取樣率，int16 格式傳輸                 |
+| 傳輸協定  | 使用 `websockets` 建立雙向 WebSocket 通道          |
+| 瀏覽器播放 | JavaScript `AudioContext` 解析 int16 並播放     |
+| 延遲控制  | 使用固定封包大小（1024 frame）以確保穩定                  |
+| 格式轉換  | 將 int16 → float32 以符合 Web Audio 標準         |
 
-## 🙌 作者
-本專案由 eric039eric 開發。
-靈感來源與技術協助：ChatGPT（OpenAI）
+---
 
-## 🧡 特別感謝
-如果你也對這類即時聲音系統有興趣，歡迎 star ⭐️、fork 🍴、或來 issue 一起交流！# Real-time-audio-streaming-system
+## 🧩 未來發展方向（TODO）
+
+* 🔁 支援雙向語音傳輸（對話模式）
+* 🌍 將伺服器部署到遠端伺服器，實現跨網路語音串流
+* 🧠 整合語音轉文字（Speech-to-Text）
+* 📈 加入視覺化波形或音量條
+* 🧪 加入語音觸發事件（如：聲音超過某分貝時發出警報）
+
+---
+
+## 🙌 作者與靈感
+
+本專案由 eric039eric 建立。
+特別感謝 ChatGPT（OpenAI）協助排除 bug、修正音訊邏輯並陪我從零做出這套系統。
+
+---
+
+## 💬 聯絡與貢獻
+
+如果你對這個專案有興趣、想合作、或有任何問題，歡迎發 issue 或 pull request，或寄信給我！
+
+---
+
+## 🧠 備註（給未來的自己）
+
+這是我第一次寫出一個能「實際聽到聲音」的作品。
+它不只是程式，它是一條把現實聲音變成資料、在網路中傳遞、再被還原出來的 **完整邏輯鏈**。
+
+當你未來忘了怎麼做的時候，回來看這個 README，它會再次點燃你的靈感 🔥
